@@ -20,28 +20,27 @@ const render = () => {
   return { userText, form, input }
 };
 
-const appTextWriter = (userText, input, delay) => {
+const appTextWriter = (collback, delay) => {
   let timeoutId;
 
-  const textOutput = () => {
+  return () => {
     clearTimeout(timeoutId);
-
-    timeoutId = setTimeout(() => {
-      userText.textContent = input.value;
-    }, delay);
+    timeoutId = setTimeout(collback, delay);
   }
-
-  input.addEventListener('input', textOutput);
 }
 
 const init = () => {
   const { userText, form, input } = render();
 
+  const updateText = appTextWriter(() => {
+    userText.textContent = input.value;
+  }, 300)
+
   form.addEventListener('submit', e => {
     e.preventDefault();
   });
 
-  appTextWriter(userText, input, 300);
+  input.addEventListener('input', updateText);
 };
 
 init();
