@@ -20,8 +20,7 @@ const render = () => {
   return { userText, form, input }
 };
 
-const init = () => {
-  const { userText, form, input } = render();
+const appTextWriter = (userText, input, delay) => {
   let timeoutId;
 
   const textOutput = () => {
@@ -29,14 +28,20 @@ const init = () => {
 
     timeoutId = setTimeout(() => {
       userText.textContent = input.value;
-    }, 300);
+    }, delay);
   }
+
+  input.addEventListener('input', textOutput);
+}
+
+const init = () => {
+  const { userText, form, input } = render();
 
   form.addEventListener('submit', e => {
     e.preventDefault();
   });
 
-  input.addEventListener('input', textOutput);
+  appTextWriter(userText, input, 300);
 };
 
 init();
