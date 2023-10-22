@@ -24,18 +24,19 @@ const init = () => {
   const { userText, form, input } = render();
   let timeoutId;
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-  });
-
-  input.addEventListener('input', e => {
+  const textOutput = () => {
     clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => {
       userText.textContent = input.value;
     }, 300);
-  })
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+  });
+
+  input.addEventListener('input', textOutput);
 };
 
 init();
-

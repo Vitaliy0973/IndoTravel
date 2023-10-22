@@ -23,6 +23,21 @@ const checkZero = (number) => {
   return number;
 };
 
+const getTimeRemaining = (day, month, year, hour = '00', minute = '00') => {
+  const dateStop = new Date(
+    `${year}-${month}-${day}T${hour}:${minute}:00+03:00`).getTime();
+  const dateNow = Date.now() + (3 * 60 * 60 * 1000);
+
+  const timeRemaining = dateStop - dateNow;
+
+  const seconds = Math.floor(timeRemaining / 1000 % 60);
+  const minutes = Math.floor(timeRemaining / 1000 / 60 % 60);
+  const hours = Math.floor(timeRemaining / 1000 / 60 / 60 % 24);
+  const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24);
+
+  return { timeRemaining, seconds, minutes, hours, days }
+}
+
 export const timerApp = (deadline, timer, timerElems, heroText) => {
 
   const {
@@ -34,56 +49,42 @@ export const timerApp = (deadline, timer, timerElems, heroText) => {
     timerUnitsMinutes,
   } = timerElems;
 
-  const [day, month, year] = deadline.split('/');
-
-  const getTimeRemaining = () => {
-    const dateStop = new Date(`${year}-${month}-${day}T00:00:00+03:00`).getTime();
-    const dateNow = Date.now() + (3 * 60 * 60 * 1000);
-
-    const timeRemaining = dateStop - dateNow;
-
-    const seconds = Math.floor(timeRemaining / 1000 % 60);
-    const minutes = Math.floor(timeRemaining / 1000 / 60 % 60);
-    const hours = Math.floor(timeRemaining / 1000 / 60 / 60 % 24);
-    const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24);
-
-    return { timeRemaining, seconds, minutes, hours, days }
-  }
+  const dataDate = deadline.split(' ').reduce((acc, item) => {
+    if (item.includes('/')) {
+      acc.push(...item.split('/'));
+    }
+    if (item.includes(':')) {
+      acc.push(...item.split(':'));
+    }
+    return acc;
+  }, []);
 
   const start = () => {
-    const timerData = getTimeRemaining();
+    const { timeRemaining, seconds, minutes, hours, days } = getTimeRemaining(...dataDate);
     const {
       daysText,
       hoursText,
       minutesText,
       secondsText,
-    } = formatTimeRemaining(
-      timerData.days,
-      timerData.hours,
-      timerData.minutes,
-      timerData.seconds
-    );
+    } = formatTimeRemaining(days, hours, minutes, seconds);
 
-    timerCountDays.textContent = timerData.days || checkZero(timerData.hours);
-    timerUnitsDays.textContent = timerData.days ? daysText : hoursText;
-    timerCountHours.textContent = timerData.days ?
-      checkZero(timerData.hours) : checkZero(timerData.minutes);
-    timerUnitsHours.textContent = timerData.days ? hoursText : minutesText;
-    timerCountMinutes.textContent = timerData.days ?
-      checkZero(timerData.minutes) : checkZero(timerData.seconds);
-    timerUnitsMinutes.textContent = timerData.days ? minutesText : secondsText;
+    timerCountDays.textContent = days || checkZero(hours);
+    timerUnitsDays.textContent = days ? daysText : hoursText;
+    timerCountHours.textContent = days ? checkZero(hours) : checkZero(minutes);
+    timerUnitsHours.textContent = days ? hoursText : minutesText;
+    timerCountMinutes.textContent = days ?
+      checkZero(minutes) : checkZero(seconds);
+    timerUnitsMinutes.textContent = days ? minutesText : secondsText;
 
     const intervalId = setTimeout(start, 1000);
 
-    if (timerData.timeRemaining <= 0) {
+    if (timeRemaining <= 0) {
       clearTimeout(intervalId);
 
       timer.textContent = '';
       heroText.textContent = '';
-      console.log(timer);
     }
   }
 
   start();
-
 }
